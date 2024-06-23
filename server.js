@@ -1,4 +1,7 @@
 const express = require('express')
+//const cluster = require('cluster')
+//const numCPUs = require('os').availableParallelism();
+const PORT = 4000
 
 const app = express()
 app.use(express.json());
@@ -17,7 +20,7 @@ app.get('/blockingCode', (req,res) => {
 })
 
 app.get('/', (req,res) => {
-
+    res.send('Root end point')
 })
 
 app.get('/:id', (req,res) => {
@@ -28,6 +31,9 @@ app.get('/:id', (req,res) => {
     res.status(200).send('hi there')
 })
 
-app.listen(4000, () => {
+// We run the code as usual and the PM 2.0 handles the things from here as 
+// each of this instance runs as worker thread
+console.log('running workers threads..')
+app.listen(PORT, () => {
     console.log('server is running')
 })
