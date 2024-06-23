@@ -1,6 +1,6 @@
 const express = require('express')
-const cluster = require('cluster')
-const numCPUs = require('os').availableParallelism();
+//const cluster = require('cluster')
+//const numCPUs = require('os').availableParallelism();
 const PORT = 4000
 
 const app = express()
@@ -31,24 +31,9 @@ app.get('/:id', (req,res) => {
     res.status(200).send('hi there')
 })
 
-if (cluster.isPrimary) {
-    console.log(`Primary ${process.pid} is running`);
-    console.log(`Number of CPUs: ${numCPUs}`);
-  
-    // Fork workers.
-    for (let i = 0; i < numCPUs; i++) {
-      cluster.fork();
-    }
-  
-    cluster.on('exit', (worker, code, signal) => {
-      console.log(`worker ${worker.process.pid} died`);
-    });
-  }
-
-  else {
-    console.log(`Worker ${process.pid} started`);
-
-      app.listen(PORT, () => {
-        //   console.log('server is running')
-      })
-  }
+// We run the code as usual and the PM 2.0 handles the things from here as 
+// each of this instance runs as worker thread
+console.log('running workers threads..')
+app.listen(PORT, () => {
+    console.log('server is running')
+})
