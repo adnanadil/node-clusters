@@ -1,4 +1,7 @@
 const express = require('express')
+const cluster = require('cluster')
+const numCPUs = require('os').availableParallelism();
+const PORT = 4000
 
 const app = express()
 app.use(express.json());
@@ -17,7 +20,7 @@ app.get('/blockingCode', (req,res) => {
 })
 
 app.get('/', (req,res) => {
-
+    res.send('Root end point')
 })
 
 app.get('/:id', (req,res) => {
@@ -28,6 +31,24 @@ app.get('/:id', (req,res) => {
     res.status(200).send('hi there')
 })
 
-app.listen(4000, () => {
-    console.log('server is running')
-})
+if (cluster.isPrimary) {
+    console.log(`Primary ${process.pid} is running`);
+    console.log(`Number of CPUs: ${numCPUs}`);
+  
+    // Fork workers.
+    for (let i = 0; i < numCPUs; i++) {
+      cluster.fork();
+    }
+  
+    cluster.on('exit', (worker, code, signal) => {
+      console.log(`worker ${worker.process.pid} died`);
+    });
+  }
+
+  else {
+    console.log(`Worker ${process.pid} started`);
+
+      app.listen(PORT, () => {
+        //   console.log('server is running')
+      })
+  }
